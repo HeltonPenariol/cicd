@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+/*         stage('Security pre-build') {
+            steps{
+                script{
+                    secPreBuild()
+                }
+            }
+        } */
+        stage('Pré-Build') {
+            steps {
+                echo 'Instalando dependencias' // Processar arquivos CSS
+                sh 'pip install cssmin' // Instala o cssmin
+            }
+
+        }
+        stage('Sonar analysis') {
+            // when{
+            //     anyof{
+            //         branch 'develop'; branch 'sustain'
+            //     }
+            steps {
+                echo 'Validando código com Sonar'
+            //}
+            }
+        }
+        stage('build') {
+            steps {
+                script {
+                    // Compacta os arquivos HTML diretamente em um arquivo zip
+                    sh 'cd appfront && zip -r /opt/appfront.zip .'
+                }
+                archiveArtifacts artifacts: 'appfront.zip', onlyIfSuccessful: true
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Fazendo testes de QA'
+            }
+
+        }
+    }
+
+    post {
+        success {
+            echo 'O build foi bem-sucedido! Artefato gerado: appfront.zip'
+        }
+        failure {
+            echo 'O build falhou!'
+        }
+    }
+}

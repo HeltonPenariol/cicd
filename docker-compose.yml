@@ -1,0 +1,74 @@
+version: '3.7'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+    networks:
+      - app-network
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - app-network
+
+  apache:
+    image: httpd:latest
+    container_name: apache
+    ports:
+      - "80:80"
+    volumes:
+      - ./appfront:/usr/local/apache2/htdocs/
+    networks:
+      - app-network
+
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium
+    ports:
+      - "4444:4444"
+    networks:
+      - app-network
+  
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8090:8090"
+  #   volumes:
+  #     - ./seu_projeto:/usr/src/app
+  #   depends_on:
+  #     - database
+  #   environment:
+  #     - DATABASE_URL=jdbc:oracle:thin:@database:1521:seu_sid
+  #     - DATABASE_USER=seu_usuario
+  #     - DATABASE_PASSWORD=sua_senha
+
+  # database:
+  #   image: oracle/database:12.1.0.2-ee
+  #   ports:
+  #     - "1521:1521"
+  #   environment:
+  #     - ORACLE_ALLOW_REMOTE=true
+  #     - ORACLE_HOME=/u01/app/oracle/product/12.1.0/dbhome_1
+  #     - ORACLE_SID=seu_sid
+  #     - ORACLE_BASE=/u01/app/oracle
+  #     - ORACLE_CHARACTERSET=AL32UTF8
+  #     - ORACLE_PDB=seu_pdb
+  #   volumes:
+  #     - ./oracle_data:/u01/app/oracle
+
+
+networks:
+  app-network:
+    driver: bridge

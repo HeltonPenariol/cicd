@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Security Pré-Deploy') {
+            steps{
+                // script{
+                //     secPreDeploy()
+                // }
+                echo 'Validação de segurança pré deploy'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Etapa de deploy
+                script {
+                    //sh 'scp appfront.zip user@server:/path/to/deploy' // Exemplo de cópia do artefato via SCP para um servidor remoto
+                    sh 'unzip /opt/appfront.zip'
+                    sh 'docker cp -r jenkins:/opt/appfront/ apache:/usr/local/apache2/htdocs/'
+                }
+            }
+        }
+        stage('Security Pós-Deploy') {
+            steps {
+                // script {
+                //     secPostDeploy()
+                // }
+                echo 'Validação de segurança pós deploy'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'O deploy foi concluído com sucesso!'
+        }
+        failure {
+            echo 'O deploy falhou!'
+        }
+    }
+}
